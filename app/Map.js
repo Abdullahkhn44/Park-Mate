@@ -13,6 +13,7 @@ import uuid from 'react-native-uuid';
 import { useRouter } from 'expo-router';
 import { setisSessionStarted } from '../Redux/parkingSessionSlice';
 
+
 import moment from 'moment';
 const Map = () => {
 

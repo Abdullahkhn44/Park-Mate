@@ -5,14 +5,25 @@ import { FlashList } from "@shopify/flash-list";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
-const [history, setHistory] = useState([]);
+
+
+const renderItem = ({ item }) => (
+  <View style={styles.itemContainer}>
+    <Text style={styles.addressText}>{item.address}</Text>
+    <Text style={styles.dateText}>{item.date}</Text>
+  </View>
+);
+
+const History = () => {
+
+  const [history, setHistory] = useState([]);
 
 useFocusEffect(
   useCallback(() => {
     const getItems = async () => {
       const savedAddress = await AsyncStorage.getItem('savedAddress');
       const savedMoment = await AsyncStorage.getItem('savedMoment');
-      await AsyncStorage.removeItem('savedMoment');
+
 
       if (savedAddress && savedMoment) {
         // Get existing history from AsyncStorage
@@ -34,15 +45,6 @@ useFocusEffect(
     getItems();
   }, [])
 );
-
-const renderItem = ({ item }) => (
-  <View style={styles.itemContainer}>
-    <Text style={styles.addressText}>{item.address}</Text>
-    <Text style={styles.dateText}>{item.date}</Text>
-  </View>
-);
-
-const History = () => {
   return (
     <View style={styles.container}>
       <FlashList

@@ -137,7 +137,7 @@ const Home = () => {
 
   const navigateToMapSession = () => router.push('/MapSession');
   const navigateToHistory = () => router.push('History');
-
+  const navigateToMapHistory = () => router.push('MapHistory');
 
   return (
 
@@ -174,7 +174,7 @@ const Home = () => {
 
           {/* <Button text={'Find My Vehicle'} /> */}
 
-          <Button text={'Map History'} />
+          <Button text={'Map History'} onPress={navigateToMapHistory} />
           <Button text={'History'} onPress={navigateToHistory} />
 
         </View>

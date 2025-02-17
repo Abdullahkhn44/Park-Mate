@@ -7,12 +7,13 @@ import ImageView from "react-native-image-viewing";
 import * as Linking from 'expo-linking';
 import { Platform } from 'react-native';
 import * as Location from 'expo-location';
-
+import { Image } from 'expo-image';
 import { useDispatch } from 'react-redux';
 import { setisSessionStarted } from '../Redux/parkingSessionSlice';
 import { useRouter } from 'expo-router';
 import Toast from 'react-native-toast-message';
 import { API_KEY } from '@env';
+import image2 from './assets/parking.gif'
 
 const MapSession = () => {
 
@@ -129,7 +130,7 @@ const MapSession = () => {
     }, [mylatitude, mylongitude]);
     //USERS LOCATION ENDED
 
-    const images = { uri: image };
+    const images = { uri: image, };
 
     // OPEN GOOGLE MAP APP
     const googleMapOpenUrl = ({ latitude, longitude, mylatitude, mylongitude }) => {
@@ -216,11 +217,7 @@ const MapSession = () => {
                         text1: 'Session Saved',
                         text2: 'Session saved in History ✅'
                     });
-                    //remove pic,text,car location from Astorage
 
-                    await AsyncStorage.removeItem('textLocation');
-                    await AsyncStorage.removeItem('savedImage');
-                    await AsyncStorage.multiRemove([latPair, longPair]);
                 }
 
 
@@ -280,7 +277,11 @@ const MapSession = () => {
                     <View style={styles.twoButtonBottomView}>
                         <TouchableOpacity onPress={() => setViewerVisible(true)}>
                             <View style={styles.imageBottomView}>
-                                <Image source={{ uri: image }} style={styles.image} />
+                                {image ? (
+                                    <Image source={{ uri: image }} style={styles.image} />
+                                ) : (
+                                    <Image source={require('./assets/parking.gif')} style={styles.image} />
+                                )}
                             </View>
                         </TouchableOpacity>
                         <ImageView
