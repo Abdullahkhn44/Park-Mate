@@ -9,6 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const renderItem = ({ item }) => (
   <View style={styles.itemContainer}>
+   
     <Text style={styles.addressText}>{item.address}</Text>
     <Text style={styles.dateText}>{item.date}</Text>
   </View>
@@ -18,40 +19,58 @@ const History = () => {
 
   const [history, setHistory] = useState([]);
 
-useFocusEffect(
-  useCallback(() => {
-    const getItems = async () => {
-      const savedAddress = await AsyncStorage.getItem('savedAddress');
-      const savedMoment = await AsyncStorage.getItem('savedMoment');
+  useFocusEffect(
+    useCallback(() => {
+      const getItems = async () => {
 
+        
+  
+        const savedAddress = await AsyncStorage.getItem('savedAddress');
+        const savedMoment = await AsyncStorage.getItem('savedMoment');
 
-      if (savedAddress && savedMoment) {
-        // Get existing history from AsyncStorage
-        const existingHistory = await AsyncStorage.getItem('history');
-        const parsedHistory = existingHistory ? JSON.parse(existingHistory) : [];
+        if (savedAddress && savedMoment) {
+          // Get existing history from AsyncStorage
+          const existingHistory = await AsyncStorage.getItem('history');
+          const parsedHistory = existingHistory ? JSON.parse(existingHistory) : [];
 
-        // Add new entry
-        const newEntry = { address: savedAddress, date: savedMoment };
-        const updatedHistory = [newEntry, ...parsedHistory]; // Newest first
+          // Check if the same entry already exists
+          const isDuplicate = parsedHistory.some(
+            (entry) => entry.address === savedAddress && entry.date === savedMoment
+          );
 
-        // Save updated history back to AsyncStorage
-        await AsyncStorage.setItem('history', JSON.stringify(updatedHistory));
+          if (!isDuplicate) {
+            // Add new entry
+            const newEntry = { address: savedAddress, date: savedMoment };
+            const updatedHistory = [newEntry, ...parsedHistory]; // Newest first
 
-        // Update state
-        setHistory(updatedHistory);
-      }
-    };
+            // Save updated history back to AsyncStorage
+            await AsyncStorage.setItem('history', JSON.stringify(updatedHistory));
 
-    getItems();
-  }, [])
-);
+            // Update state
+            setHistory(updatedHistory);
+          } else {
+            // If no new entry, just update the state
+            setHistory(parsedHistory);
+          }
+        }
+      };
+
+      getItems();
+    }, [])
+  );
   return (
     <View style={styles.container}>
+
+<View style={styles.headingView}>
+      <Text style={styles.headingText}>Parking Mate</Text>
+
+    </View>
       <FlashList
         data={history}
         renderItem={renderItem}
-        estimatedItemSize={50}
+        estimatedItemSize={10}
       />
+
     </View>
   )
 }
@@ -62,8 +81,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 10,
+    backgroundColor: 'black',
+
   },
+
   itemContainer: {
+    top: 55,
     marginBottom: 10,
     padding: 10,
     backgroundColor: '#fff',
@@ -77,11 +100,22 @@ const styles = StyleSheet.create({
   addressText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
+    color: 'black',
   },
   dateText: {
     fontSize: 14,
-    color: '#666',
+    color: 'green',
     marginTop: 2,
+  },
+  headingView: {
+    top: 35,
+    alignItems: 'center',
+   
+  },
+  headingText: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: "white",
+
   },
 });

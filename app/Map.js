@@ -12,9 +12,9 @@ import * as FileSystem from 'expo-file-system';
 import uuid from 'react-native-uuid';
 import { useRouter } from 'expo-router';
 import { setisSessionStarted } from '../Redux/parkingSessionSlice';
-
-
+import Toast from 'react-native-toast-message';
 import moment from 'moment';
+
 const Map = () => {
 
 
@@ -26,6 +26,7 @@ const Map = () => {
 
 
   const { latitude, longitude } = useSelector((state) => state.location);
+
   const [image, setImage] = useState(null);
   const [text, setText] = useState(null);
   const [permission, requestPermission] = ImagePicker.useCameraPermissions();
@@ -45,6 +46,7 @@ const Map = () => {
         }
 
         let getlocation = await Location.getCurrentPositionAsync({});
+
         dispatch(setLatitude(getlocation.coords.latitude));
 
         dispatch(setLongitude(getlocation.coords.longitude));
@@ -68,7 +70,7 @@ const Map = () => {
     }
 
     getCurrentLocation();
-  }, [dispatch, latitude, longitude]);
+  }, [dispatch]);
 
 
 
@@ -111,11 +113,20 @@ const Map = () => {
   const proceed = async () => {
 
     await AsyncStorage.setItem('textLocation', text);
-    const latPair = ["latitude", latitude]
-    const longPair = ["longitude", longitude]
+
+    const latString = String(latitude);
+    const longString = String(longitude);
+
+    console.log("Latitude being stored:", latString);
+    console.log("Longitude being stored:", longString);
+
+
 
     try {
-      await AsyncStorage.multiSet([latPair, longPair]);
+      await AsyncStorage.multiSet([
+        ["latitude", latString],
+        ["longitude", longString]
+      ]);
     } catch (e) {
       console.log('error in multiset', e);
     }
@@ -153,9 +164,14 @@ const Map = () => {
       const now = moment().format("MMM Do YYYY, h:mm a");
 
       await AsyncStorage.setItem('savedMoment', now);
-      
+
       dispatch(setisSessionStarted(true));
       router.push('Home')
+      Toast.show({
+        type: 'success',
+        text1: 'Session Started',
+        text2: 'Parking Session Started ✅',
+      });
       console.log('User image uri saved')
 
 
@@ -207,7 +223,7 @@ const Map = () => {
               onChangeText={(text) => setText(text)}
             />
             <View >
-              <TouchableOpacity style={styles.bottomButton} onPress={proceed}>
+              <TouchableOpacity style={styles.bottomButton} onPress={() => proceed()}>
                 <Text style={styles.buttonText}>
                   Proceed
                 </Text>

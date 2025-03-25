@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import { StyleSheet, Text, View, Dimensions } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -7,7 +7,7 @@ import { useFocusEffect } from "@react-navigation/native";
 const MapHistory = () => {
     const [mapHistory, setMapHistory] = useState([]);
     const [currentLocation, setCurrentLocation] = useState(null);
-
+    const mapRef = useRef(null);
     useFocusEffect(
         useCallback(() => {
             const getItems = async () => {
@@ -38,23 +38,32 @@ const MapHistory = () => {
                     console.log("Error fetching location history:", error);
                 }
             };
-
+            const region = {
+                latitude: currentLocation?.latitude ,
+                longitude: currentLocation?.longitude,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+            };
             getItems();
+            if (mapRef.current) {
+                mapRef.current.animateToRegion(region, 3000);
+
+            }
         }, [])
     );
 
     return (
         <View style={styles.container}>
-            <Text style={styles.heading}>Map History</Text>
 
             <MapView
                 style={styles.map}
                 initialRegion={{
-                    latitude: currentLocation?.latitude || 37.78825, // Default if no saved location
-                    longitude: currentLocation?.longitude || -122.4324,
+                    latitude: currentLocation?.latitude ,
+                    longitude: currentLocation?.longitude ,
                     latitudeDelta: 0.01,
                     longitudeDelta: 0.01,
                 }}
+
             >
                 {/* Render markers from history */}
                 {mapHistory.map((item, index) => (
@@ -62,7 +71,7 @@ const MapHistory = () => {
                         key={index}
                         coordinate={{ latitude: item.latitude, longitude: item.longitude }}
                         title={`Parked Here`}
-                        description={`Lat: ${item.latitude}, Lon: ${item.longitude}`}
+
                     />
                 ))}
             </MapView>
@@ -77,14 +86,11 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: "center",
         justifyContent: "center",
+
     },
-    heading: {
-        fontSize: 18,
-        fontWeight: "bold",
-        marginBottom: 10,
-    },
+
     map: {
         width: Dimensions.get("window").width,
-        height: Dimensions.get("window").height * 0.8,
+        height: Dimensions.get("window").height,
     },
 });

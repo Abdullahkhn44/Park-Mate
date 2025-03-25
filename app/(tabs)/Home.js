@@ -6,7 +6,9 @@ import { useRouter } from 'expo-router'
 import { useSelector } from 'react-redux'
 import CusButton from '../components/CusButton'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import OpenNavigation from '../components/Navigate'
+import * as Location from 'expo-location';
+import { LinearGradient } from 'expo-linear-gradient';
+
 
 const Home = () => {
   const router = useRouter();
@@ -18,13 +20,17 @@ const Home = () => {
   const [longitude, setLongitude] = useState('');
   const [mylongitude, setmyLongitude] = useState('');
   const [mylatitude, setmyLatitude] = useState('');
+  const [currentTipIndex, setCurrentTipIndex] = useState(0);
 
-  console.log('session ', isSessionStarted)
+
 
 
   // USERS LOCATION
   useEffect(() => {
+
     async function getCurrentLocation() {
+
+
       try {
         let { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
@@ -34,6 +40,7 @@ const Home = () => {
         }
 
         let getlocation = await Location.getCurrentPositionAsync({});
+       
         setmyLatitude(getlocation.coords.latitude);
 
         setmyLongitude(getlocation.coords.longitude);
@@ -74,7 +81,7 @@ const Home = () => {
 
     getCurrentLocation();
 
-  }, [latitude, longitude])
+  }, [])
   // CARS LOCATION FROM STORAGE ENDED
 
 
@@ -120,11 +127,14 @@ const Home = () => {
 
         const textValue = await AsyncStorage.getItem('textLocation');
         const timeValue = await AsyncStorage.getItem('savedMoment');
-        if (textValue && timeValue !== null) {
 
-          setText(textValue);
-          setTime(timeValue);
 
+        if (textValue) {
+          setText(textValue);  // Update text if textValue is available
+        }
+
+        if (timeValue) {
+          setTime(timeValue);  // Update time only 
         }
       } catch (e) {
         console.error('Error getting values:', e);
@@ -132,12 +142,34 @@ const Home = () => {
     };
 
     loadImage();
+  }, [text, time]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTipIndex((prevIndex) => (prevIndex + 1) % tips.length);
+    }, 5000); // Change tip every 4 seconds
+
+    return () => clearInterval(interval); // Cleanup on unmount
   }, []);
 
 
-  const navigateToMapSession = () => router.push('/MapSession');
+
+
+  const navigateToMapSession = () => router.push('MapSession');
   const navigateToHistory = () => router.push('History');
   const navigateToMapHistory = () => router.push('MapHistory');
+
+  const tips = [
+    "Park near exits for quicker access",
+    "Get a 3D view in maps by sliding up with two fingers",
+    "Remember your parking spot by taking a photo",
+    "Avoid parking under direct sunlight to protect your car",
+    "Look for parking spots near security cameras for safety",
+    "Use a parking app to track your location",
+    "Check for parking restrictions to avoid fines",
+    "Reverse park for an easier exit",
+    "Park near lights for better visibility at night",
+  ];
 
   return (
 
@@ -145,7 +177,7 @@ const Home = () => {
       <StatusBar style="light" backgroundColor='black' />
       <View style={styles.headingView}>
         <Text style={styles.headingText}>Parking Mate</Text>
-        <Text style={styles.tipsText}>Tip: "Park near exits for quicker access"</Text>
+        <Text style={styles.tipsText}>Tip: "{tips[currentTipIndex]}"</Text>
       </View>
 
       {isSessionStarted ?
@@ -170,12 +202,23 @@ const Home = () => {
         :
 
         <View style={styles.ButtonView}>
-          <Button text={'Lets Park'} onPress={() => router.push('/Map')} />
+          <LinearGradient style={styles.letsParkGradient} colors={['#C2FFE0', '#82dcf0']}
+          >
+            <Button style={styles.ButtonViewOne} text={'Lets Park'} iconName={'location-arrow'} iconStyle={styles.iconstylingGradientOne} size={35} onPress={() => router.push('Map')} />
 
-          {/* <Button text={'Find My Vehicle'} /> */}
+          </LinearGradient>
 
-          <Button text={'Map History'} onPress={navigateToMapHistory} />
-          <Button text={'History'} onPress={navigateToHistory} />
+        
+
+          <LinearGradient style={styles.gradient} colors={['#82dcf0', '#C2FFE0']}>
+
+            <Button style={styles.ButtonViewTwo} text={'Map History'} iconName={'map-pin'} iconStyle={styles.iconstylingGradient} size={35} onPress={navigateToMapHistory} />
+
+          </LinearGradient>
+
+          <LinearGradient style={styles.gradient} colors={['#C2FFE0', '#82dcf0']}>
+            <Button style={styles.ButtonViewThree} iconName={'layer-group'} iconStyle={styles.iconstylingGradient} size={35} text={'History'} onPress={navigateToHistory} />
+          </LinearGradient>
 
         </View>
 
@@ -196,8 +239,9 @@ const styles = StyleSheet.create({
 
   },
   headingView: {
-    flex: 0.25,
-    margin: 25
+    flex: 0.27,
+    margin: 25,
+    top: 13,
   },
   headingText: {
     fontSize: 45,
@@ -280,5 +324,47 @@ const styles = StyleSheet.create({
   newIconstyling: {
     bottom: 48,
     left: 110
+  },
+  ButtonViewOne: {
+
+    height: 80, // Shorter height
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  letsParkGradient: {
+    width: '90%', // Full width with some padding
+    borderRadius: 8,
+    padding: 5,
+  },
+  ButtonViewTwo: {
+
+    borderRadius: 8,
+    height: 150,
+    width: 140,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  ButtonViewThree: {
+
+    borderRadius: 8,
+    height: 150,
+    width: 140,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  gradient: {
+    padding: 5,
+    alignItems: 'center',
+    borderRadius: 5,
+  },
+  iconstylingGradient: {
+    top: 40,
+    left: 50,
+    opacity: 1
+
+  },
+  iconstylingGradientOne: {
+    top: 10,
+    left: 130,
+    opacity: 1
+
   },
 })

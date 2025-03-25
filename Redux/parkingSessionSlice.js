@@ -5,7 +5,7 @@ const sessionSlice = createSlice({
     name: 'parkingSession',
 
     initialState: {
-        isSessionStarted: true,
+        isSessionStarted: false,
     },
 
     reducers: {  

@@ -29,14 +29,19 @@ const Slider = () => {
         const checkUser = async () => {
             try {
                 const value = await AsyncStorage.getItem('userId');
+                  //await AsyncStorage.removeItem('userId');
                 if (value !== null) {
 
                     router.replace("(tabs)/Home")
                     setLoading(false);
-                    console.log('User navigated successfully', value)
+                   
+                } else {
+                    // User ID doesn't exist, proceed with loading set to false
+                    console.log('No user ID found');
                 }
+                setLoading(false); // Set loading to false regardless of the result
             } catch (e) {
-                console.log(e)
+                
                 setLoading(false);
             }
         }
@@ -54,18 +59,20 @@ const Slider = () => {
     }
 
     const handleNavigation = async () => {
-        router.replace("/pages/Home")
+        router.replace("(tabs)/Home")
         const userId = uuid.v4();
         try {
             const savedUid = await AsyncStorage.setItem('userId', userId);
-            console.log('User UUID Saved', savedUid)
+          
         } catch (e) {
-            console.log('User UUID Not Saved')
+           
         }
     }
 
     return (
+
         <SafeAreaView style={styles.MainView} >
+            <StatusBar style="light" backgroundColor='white' />
             <ScrollView style={styles.ScrollView}
                 horizontal={true}
                 pagingEnabled={true}
@@ -243,7 +250,7 @@ const styles = StyleSheet.create({
     ButtonView: {
         justifyContent: 'center',
         alignItems: 'center',
-        bottom: 60,
+        bottom: 30,
 
     },
     Button: {
