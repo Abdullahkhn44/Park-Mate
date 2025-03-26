@@ -35,7 +35,7 @@ npm install
 ```sh
 npx expo start
 ```
-```md
+
 ## 📸 Screenshots  
 ### 🗺️ Active Parking Session Map  
 ![Active-Parking-Map](https://github.com/Abdullahkhn44/Park-Mate/blob/main/Screenshots/Active-Parking-Map.jpeg)
